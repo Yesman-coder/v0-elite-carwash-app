@@ -22,7 +22,7 @@ export async function login(formData: FormData) {
     return { error: "Credenciales invalidas. Intente nuevamente." }
   }
 
-  redirect("/dashboard")
+  return { success: true }
 }
 
 export async function signUp(formData: FormData) {
@@ -41,7 +41,7 @@ export async function signUp(formData: FormData) {
     return { error: "La contrasena debe tener al menos 6 caracteres" }
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error, data } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -60,7 +60,13 @@ export async function signUp(formData: FormData) {
     return { error: error.message }
   }
 
-  redirect("/auth/sign-up-success")
+  // If email confirmation is disabled, user is logged in immediately
+  if (data?.session) {
+    return { success: true, redirectTo: "/dashboard" }
+  }
+
+  // Email confirmation required
+  return { success: true, redirectTo: "/auth/sign-up-success" }
 }
 
 export async function signOut() {

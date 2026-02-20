@@ -1,7 +1,6 @@
 "use client"
 
 import type { PortalCustomer, PortalCard, PortalVisit } from "@/lib/types"
-import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { PortalLoyaltyCard } from "./portal-loyalty-card"
@@ -23,12 +22,12 @@ export function PortalView({ customer, cards, visits }: PortalViewProps) {
       <div className="mx-auto max-w-md">
         {/* Header */}
         <div className="mb-6 flex flex-col items-center gap-3">
-          <Image
+          <img
             src="/images/logo.png"
             alt="Elite Carwash"
             width={180}
             height={60}
-            className="h-auto w-[180px]"
+            style={{ width: 180, height: "auto" }}
           />
           {customer.business_name && (
             <p className="text-xs text-muted-foreground">

@@ -1,16 +1,17 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { signUp } from "@/app/auth/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import Image from "next/image"
 import Link from "next/link"
 
 export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
@@ -19,6 +20,9 @@ export default function SignUpPage() {
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.success) {
+      router.push(result.redirectTo || "/dashboard")
+      router.refresh()
     }
   }
 
@@ -26,13 +30,12 @@ export default function SignUpPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center gap-6">
-          <Image
+          <img
             src="/images/logo.png"
             alt="Elite Carwash Logo"
             width={240}
             height={80}
-            className="h-auto w-[240px]"
-            priority
+            style={{ width: 240, height: "auto" }}
           />
           <div className="text-center">
             <h1 className="text-2xl font-bold tracking-tight text-foreground">

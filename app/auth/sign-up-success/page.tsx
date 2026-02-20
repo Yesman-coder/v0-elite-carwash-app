@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button"
 import { Mail } from "lucide-react"
-import Image from "next/image"
 import Link from "next/link"
 
 export default function SignUpSuccessPage() {
@@ -8,12 +7,12 @@ export default function SignUpSuccessPage() {
     <main className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm text-center">
         <div className="flex flex-col items-center gap-6">
-          <Image
+          <img
             src="/images/logo.png"
             alt="Elite Carwash Logo"
             width={200}
             height={67}
-            className="h-auto w-[200px]"
+            style={{ width: 200, height: "auto" }}
           />
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Mail className="h-8 w-8 text-primary" />

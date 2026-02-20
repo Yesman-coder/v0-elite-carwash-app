@@ -1,16 +1,16 @@
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function PortalNotFound() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
-      <Image
+      <img
         src="/images/logo.png"
         alt="Elite Carwash"
         width={180}
         height={60}
-        className="mb-6 h-auto w-[180px]"
+        className="mb-6"
+        style={{ width: 180, height: "auto" }}
       />
       <h1 className="text-2xl font-bold text-foreground">
         Enlace no valido

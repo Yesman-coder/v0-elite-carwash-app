@@ -3,7 +3,6 @@
 import type { Profile, BusinessSettings } from "@/lib/types"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import Image from "next/image"
 import {
   LayoutDashboard,
   Users,
@@ -58,12 +57,12 @@ export function DashboardSidebar({
         {/* Logo area */}
         <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
           <Link href="/dashboard" className="flex items-center gap-3">
-            <Image
+            <img
               src="/images/logo.png"
               alt="Elite Carwash"
               width={140}
               height={47}
-              className="h-auto w-[140px]"
+              style={{ width: 140, height: "auto" }}
             />
           </Link>
           <button
