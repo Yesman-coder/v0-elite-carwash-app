@@ -132,7 +132,7 @@ export function CustomerDetail({
           </Card>
 
           {/* Vehicle Info */}
-          {(customer.vehicle_make || customer.vehicle_plate) && (
+          {(customer.vehicle_make || customer.last_km != null) && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
@@ -140,7 +140,7 @@ export function CustomerDetail({
                   Vehiculo
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
                   {customer.vehicle_type && (
                     <div>
@@ -174,15 +174,46 @@ export function CustomerDetail({
                       </p>
                     </div>
                   )}
-                  {customer.vehicle_plate && (
+                  {customer.last_km != null && (
                     <div>
-                      <p className="text-xs text-muted-foreground">Placa</p>
+                      <p className="text-xs text-muted-foreground">Kilometraje</p>
                       <p className="text-sm font-bold text-foreground">
-                        {customer.vehicle_plate}
+                        {customer.last_km.toLocaleString()} km
+                      </p>
+                    </div>
+                  )}
+                  {customer.last_oil_change_km != null && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Ultimo cambio de aceite</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {customer.last_oil_change_km.toLocaleString()} km
                       </p>
                     </div>
                   )}
                 </div>
+
+                {/* Oil Change Reminder Alert */}
+                {customer.last_km != null &&
+                  customer.last_oil_change_km != null &&
+                  customer.last_km - customer.last_oil_change_km >= 5000 && (
+                    <div className="rounded-lg border-2 border-warning/50 bg-warning/10 p-3">
+                      <p className="text-sm font-semibold text-warning">
+                        Cambio de aceite recomendado
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {(customer.last_km - customer.last_oil_change_km).toLocaleString()} km
+                        desde el ultimo cambio de aceite
+                      </p>
+                    </div>
+                  )}
+                {customer.last_km != null && customer.last_oil_change_km == null && (
+                  <div className="rounded-lg border border-border bg-muted/30 p-3">
+                    <p className="text-xs text-muted-foreground">
+                      Sin registro de cambio de aceite. El sistema alertara cuando se
+                      registren 5,000 km o mas desde el ultimo cambio.
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

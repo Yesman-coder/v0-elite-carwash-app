@@ -49,7 +49,8 @@ export function CustomerForm({
     const vehicleMake = (form.get("vehicle_make") as string) || null
     const vehicleModel = (form.get("vehicle_model") as string) || null
     const vehicleColor = (form.get("vehicle_color") as string) || null
-    const vehiclePlate = (form.get("vehicle_plate") as string) || null
+    const lastKmRaw = form.get("last_km") as string
+    const lastKm = lastKmRaw ? parseInt(lastKmRaw, 10) : null
     const notes = (form.get("notes") as string) || null
 
     if (!fullName || !phone) {
@@ -79,7 +80,7 @@ export function CustomerForm({
           vehicle_make: vehicleMake,
           vehicle_model: vehicleModel,
           vehicle_color: vehicleColor,
-          vehicle_plate: vehiclePlate,
+          last_km: lastKm,
           notes,
         })
         .eq("id", customer.id)
@@ -105,7 +106,7 @@ export function CustomerForm({
           vehicle_make: vehicleMake,
           vehicle_model: vehicleModel,
           vehicle_color: vehicleColor,
-          vehicle_plate: vehiclePlate,
+          last_km: lastKm,
           notes,
         })
         .select("id")
@@ -246,12 +247,14 @@ export function CustomerForm({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="vehicle_plate">Placa</Label>
+              <Label htmlFor="last_km">Kilometraje</Label>
               <Input
-                id="vehicle_plate"
-                name="vehicle_plate"
-                defaultValue={customer?.vehicle_plate || ""}
-                placeholder="ABC123"
+                id="last_km"
+                name="last_km"
+                type="number"
+                min={0}
+                defaultValue={customer?.last_km ?? ""}
+                placeholder="85000"
                 className="bg-secondary"
               />
             </div>

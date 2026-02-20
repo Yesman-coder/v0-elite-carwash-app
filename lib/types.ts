@@ -56,7 +56,8 @@ export interface Customer {
   vehicle_make: string | null
   vehicle_model: string | null
   vehicle_color: string | null
-  vehicle_plate: string | null
+  last_km: number | null
+  last_oil_change_km: number | null
   portal_token: string
   notes: string | null
   is_active: boolean
@@ -111,6 +112,7 @@ export interface Visit {
   price: number
   final_price: number
   is_free_wash: boolean
+  km_reading: number | null
   payment_method: "cash" | "transfer" | "card" | "free" | "pending"
   payment_status: "pending" | "paid" | "free"
   notes: string | null
@@ -156,7 +158,8 @@ export interface PortalCustomer {
   vehicle_make: string | null
   vehicle_model: string | null
   vehicle_color: string | null
-  vehicle_plate: string | null
+  last_km: number | null
+  last_oil_change_km: number | null
   is_active: boolean
   created_at: string
   vehicle_type: string | null
@@ -188,6 +191,7 @@ export interface PortalVisit {
   payment_method: string
   payment_status: string
   is_free_wash: boolean
+  km_reading: number | null
   notes: string | null
   created_at: string
 }

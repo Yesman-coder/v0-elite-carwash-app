@@ -14,7 +14,7 @@ export default async function LoyaltyPage() {
     .select(
       `
       *,
-      customer:customers(id, full_name, phone, vehicle_plate),
+      customer:customers(id, full_name, phone, last_km),
       stamps:loyalty_stamps(*)
     `
     )

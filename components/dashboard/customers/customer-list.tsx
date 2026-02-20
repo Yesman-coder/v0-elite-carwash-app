@@ -19,7 +19,7 @@ export function CustomerList({ customers }: CustomerListProps) {
     (c) =>
       c.full_name.toLowerCase().includes(search.toLowerCase()) ||
       c.phone.includes(search) ||
-      c.vehicle_plate?.toLowerCase().includes(search.toLowerCase())
+      c.vehicle_make?.toLowerCase().includes(search.toLowerCase())
   )
 
   const getActiveCard = (customer: Customer) => {
@@ -35,7 +35,7 @@ export function CustomerList({ customers }: CustomerListProps) {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nombre, telefono o placa..."
+          placeholder="Buscar por nombre, telefono o vehiculo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="bg-secondary pl-10"
@@ -84,7 +84,7 @@ export function CustomerList({ customers }: CustomerListProps) {
                       <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
                     </div>
 
-                    {(customer.vehicle_make || customer.vehicle_plate) && (
+                    {(customer.vehicle_make || customer.last_km) && (
                       <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                         <Car className="h-3.5 w-3.5" />
                         <span>
@@ -94,9 +94,9 @@ export function CustomerList({ customers }: CustomerListProps) {
                             customer.vehicle_color,
                           ]
                             .filter(Boolean)
-                            .join(" ")}{" "}
-                          {customer.vehicle_plate &&
-                            `- ${customer.vehicle_plate}`}
+                            .join(" ")}
+                          {customer.last_km != null &&
+                            ` - ${customer.last_km.toLocaleString()} km`}
                         </span>
                       </div>
                     )}

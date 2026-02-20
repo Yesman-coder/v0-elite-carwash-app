@@ -14,7 +14,7 @@ import { RedeemDialog } from "./redeem-dialog"
 import Link from "next/link"
 
 interface LoyaltyDashboardProps {
-  cards: (LoyaltyCard & { customer: { id: string; full_name: string; phone: string; vehicle_plate: string | null } | null })[]
+  cards: (LoyaltyCard & { customer: { id: string; full_name: string; phone: string; last_km: number | null } | null })[]
   services: Service[]
 }
 
@@ -32,7 +32,7 @@ export function LoyaltyDashboard({ cards, services }: LoyaltyDashboardProps) {
       (c) =>
         c.customer?.full_name.toLowerCase().includes(s) ||
         c.customer?.phone.includes(s) ||
-        c.customer?.vehicle_plate?.toLowerCase().includes(s)
+        c.customer?.phone.includes(s)
     )
   }
 
@@ -54,8 +54,8 @@ export function LoyaltyDashboard({ cards, services }: LoyaltyDashboardProps) {
               </span>
               <span className="text-xs text-muted-foreground">
                 {card.customer?.phone}
-                {card.customer?.vehicle_plate &&
-                  ` - ${card.customer.vehicle_plate}`}
+                {card.customer?.last_km != null &&
+                  ` - ${card.customer.last_km.toLocaleString()} km`}
               </span>
             </Link>
             <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function LoyaltyDashboard({ cards, services }: LoyaltyDashboardProps) {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar por nombre, telefono o placa..."
+          placeholder="Buscar por nombre o telefono..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="bg-secondary pl-10"

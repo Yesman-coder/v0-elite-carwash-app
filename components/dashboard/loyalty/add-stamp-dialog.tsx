@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
@@ -43,6 +44,7 @@ export function AddStampDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [serviceId, setServiceId] = useState<string>("")
+  const [kmReading, setKmReading] = useState<string>("")
   const [notes, setNotes] = useState("")
 
   async function handleAddStamp() {
@@ -89,13 +91,62 @@ export function AddStampDialog({
       )
     }
 
-    // If a service was selected, also create a visit record
-    if (serviceId && serviceId !== "none") {
+    // Update customer km if provided
+    const km = kmReading ? parseInt(kmReading, 10) : null
+    if (km && km > 0) {
+      // Get the customer_id from the card
+      const { data: cardData } = await supabase
+        .from("loyalty_cards")
+        .select("customer_id")
+        .eq("id", cardId)
+        .single()
+
+      if (cardData) {
+        const updateFields: Record<string, unknown> = { last_km: km }
+        // Check if service is oil-change related
+        const selectedService = services.find((s) => s.id === serviceId)
+        if (
+          selectedService &&
+          (selectedService.name.toLowerCase().includes("aceite") ||
+            selectedService.name.toLowerCase().includes("oil"))
+        ) {
+          updateFields.last_oil_change_km = km
+        }
+        await supabase
+          .from("customers")
+          .update(updateFields)
+          .eq("id", cardData.customer_id)
+
+        // Also create a visit record with km
+        if (selectedService) {
+          await supabase.from("visits").insert({
+            owner_id: user.id,
+            customer_id: cardData.customer_id,
+            service_id: serviceId,
+            service_name: selectedService.name,
+            price: selectedService.base_price,
+            final_price: selectedService.base_price,
+            km_reading: km,
+            payment_method: "pending",
+            payment_status: "pending",
+            loyalty_card_id: cardId,
+            served_by: user.id,
+          })
+        }
+      }
+    } else if (serviceId && serviceId !== "none") {
+      // No km but service selected - still create visit
       const selectedService = services.find((s) => s.id === serviceId)
-      if (selectedService) {
+      const { data: cardData } = await supabase
+        .from("loyalty_cards")
+        .select("customer_id")
+        .eq("id", cardId)
+        .single()
+
+      if (selectedService && cardData) {
         await supabase.from("visits").insert({
           owner_id: user.id,
-          customer_id: null, // We don't have customer_id here directly
+          customer_id: cardData.customer_id,
           service_id: serviceId,
           service_name: selectedService.name,
           price: selectedService.base_price,
@@ -109,6 +160,7 @@ export function AddStampDialog({
     }
 
     setServiceId("")
+    setKmReading("")
     setNotes("")
     setOpen(false)
     setLoading(false)
@@ -151,6 +203,21 @@ export function AddStampDialog({
                   ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label>Kilometraje actual (opcional)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={kmReading}
+              onChange={(e) => setKmReading(e.target.value)}
+              placeholder="85000"
+              className="bg-secondary"
+            />
+            <p className="text-xs text-muted-foreground">
+              Registrar km del vehiculo para recordatorios de cambio de aceite
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
