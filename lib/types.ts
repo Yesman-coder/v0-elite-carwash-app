@@ -192,6 +192,35 @@ export interface PortalVisit {
   created_at: string
 }
 
+// SMS Campaign types
+export interface SmsCampaign {
+  id: string
+  owner_id: string
+  title: string
+  message: string
+  audience: "all" | "active_card" | "completed_card" | "no_visits_30d" | "custom"
+  recipient_count: number
+  sent_count: number
+  failed_count: number
+  status: "draft" | "sending" | "sent" | "failed"
+  scheduled_at: string | null
+  sent_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SmsCampaignRecipient {
+  id: string
+  campaign_id: string
+  customer_id: string
+  phone: string
+  status: "pending" | "sent" | "failed" | "stubbed"
+  error_message: string | null
+  sent_at: string | null
+  created_at: string
+  customer?: Customer
+}
+
 // Add stamp response
 export interface AddStampResponse {
   success: boolean

@@ -9,6 +9,7 @@ import {
   CreditCard,
   Droplets,
   ClipboardList,
+  MessageSquare,
   Settings,
   X,
 } from "lucide-react"
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/dashboard/loyalty", label: "Fidelidad", icon: CreditCard },
   { href: "/dashboard/services", label: "Servicios", icon: Droplets },
   { href: "/dashboard/history", label: "Historial", icon: ClipboardList },
+  { href: "/dashboard/messages", label: "Mensajes SMS", icon: MessageSquare },
   { href: "/dashboard/settings", label: "Configuracion", icon: Settings },
 ]
 
