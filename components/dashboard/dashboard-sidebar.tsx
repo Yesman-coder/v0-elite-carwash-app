@@ -63,7 +63,7 @@ export function DashboardSidebar({
               alt="Elite Carwash"
               width={140}
               height={47}
-              className="object-contain"
+              className="h-auto w-[140px]"
             />
           </Link>
           <button

@@ -28,7 +28,7 @@ export function PortalView({ customer, cards, visits }: PortalViewProps) {
             alt="Elite Carwash"
             width={180}
             height={60}
-            className="object-contain"
+            className="h-auto w-[180px]"
           />
           {customer.business_name && (
             <p className="text-xs text-muted-foreground">

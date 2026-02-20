@@ -31,7 +31,7 @@ export default function SignUpPage() {
             alt="Elite Carwash Logo"
             width={240}
             height={80}
-            className="object-contain"
+            className="h-auto w-[240px]"
             priority
           />
           <div className="text-center">

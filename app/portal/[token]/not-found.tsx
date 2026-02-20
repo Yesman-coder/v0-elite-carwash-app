@@ -10,7 +10,7 @@ export default function PortalNotFound() {
         alt="Elite Carwash"
         width={180}
         height={60}
-        className="mb-6 object-contain"
+        className="mb-6 h-auto w-[180px]"
       />
       <h1 className="text-2xl font-bold text-foreground">
         Enlace no valido

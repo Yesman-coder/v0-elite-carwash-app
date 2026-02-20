@@ -13,7 +13,7 @@ export default function SignUpSuccessPage() {
             alt="Elite Carwash Logo"
             width={200}
             height={67}
-            className="object-contain"
+            className="h-auto w-[200px]"
           />
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
             <Mail className="h-8 w-8 text-primary" />
