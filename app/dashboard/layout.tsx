@@ -8,31 +8,28 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
+
+  // getUser() validates the JWT with Supabase servers - this is the secure check
   const {
     data: { user },
+    error,
   } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (error || !user) {
     redirect("/auth/login")
   }
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single()
-
-  const { data: settings } = await supabase
-    .from("business_settings")
-    .select("*")
-    .eq("owner_id", user.id)
-    .single()
+  // Fetch profile and settings in parallel
+  const [profileResult, settingsResult] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).single(),
+    supabase.from("business_settings").select("*").eq("owner_id", user.id).single(),
+  ])
 
   return (
     <DashboardShell
       user={user}
-      profile={profile}
-      settings={settings}
+      profile={profileResult.data}
+      settings={settingsResult.data}
     >
       {children}
     </DashboardShell>

@@ -60,8 +60,6 @@ export function DashboardSidebar({
             <img
               src="/images/logo.png"
               alt="Elite Carwash"
-              width={140}
-              height={47}
               style={{ width: 140, height: "auto" }}
             />
           </Link>

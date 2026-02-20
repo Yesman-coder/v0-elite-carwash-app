@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { signUp } from "@/app/auth/actions"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,17 +12,56 @@ export default function SignUpPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const supabase = createClient()
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     setLoading(true)
     setError(null)
-    const result = await signUp(formData)
-    if (result?.error) {
-      setError(result.error)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+    const fullName = formData.get("full_name") as string
+    const businessName = formData.get("business_name") as string
+
+    if (!email || !password || !fullName) {
+      setError("Todos los campos son requeridos")
       setLoading(false)
-    } else if (result?.success) {
-      router.push(result.redirectTo || "/dashboard")
+      return
+    }
+
+    if (password.length < 6) {
+      setError("La contrasena debe tener al menos 6 caracteres")
+      setLoading(false)
+      return
+    }
+
+    const { error: authError, data } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: {
+          full_name: fullName,
+          business_name: businessName || "Elite Carwash",
+          role: "owner",
+        },
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
+      setLoading(false)
+      return
+    }
+
+    // If email confirmation is disabled, session exists immediately
+    if (data?.session) {
+      router.push("/dashboard")
       router.refresh()
+    } else {
+      router.push("/auth/sign-up-success")
     }
   }
 
@@ -33,8 +72,6 @@ export default function SignUpPage() {
           <img
             src="/images/logo.png"
             alt="Elite Carwash Logo"
-            width={240}
-            height={80}
             style={{ width: 240, height: "auto" }}
           />
           <div className="text-center">
@@ -47,7 +84,7 @@ export default function SignUpPage() {
           </div>
         </div>
 
-        <form action={handleSubmit} className="mt-8 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           {error && (
             <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {error}

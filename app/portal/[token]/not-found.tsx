@@ -7,8 +7,6 @@ export default function PortalNotFound() {
       <img
         src="/images/logo.png"
         alt="Elite Carwash"
-        width={180}
-        height={60}
         className="mb-6"
         style={{ width: 180, height: "auto" }}
       />

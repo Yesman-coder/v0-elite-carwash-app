@@ -25,8 +25,6 @@ export function PortalView({ customer, cards, visits }: PortalViewProps) {
           <img
             src="/images/logo.png"
             alt="Elite Carwash"
-            width={180}
-            height={60}
             style={{ width: 180, height: "auto" }}
           />
           {customer.business_name && (

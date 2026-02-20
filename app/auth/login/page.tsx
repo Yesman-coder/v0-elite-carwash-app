@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { login } from "@/app/auth/actions"
+import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,18 +12,36 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const supabase = createClient()
 
-  async function handleSubmit(formData: FormData) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
     setLoading(true)
     setError(null)
-    const result = await login(formData)
-    if (result?.error) {
-      setError(result.error)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    if (!email || !password) {
+      setError("Email y contrasena son requeridos")
       setLoading(false)
-    } else if (result?.success) {
-      router.push("/dashboard")
-      router.refresh()
+      return
     }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (authError) {
+      setError("Credenciales invalidas. Intente nuevamente.")
+      setLoading(false)
+      return
+    }
+
+    router.push("/dashboard")
+    router.refresh()
   }
 
   return (
@@ -33,8 +51,6 @@ export default function LoginPage() {
           <img
             src="/images/logo.png"
             alt="Elite Carwash Logo"
-            width={240}
-            height={80}
             style={{ width: 240, height: "auto" }}
           />
           <div className="text-center">
@@ -47,7 +63,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <form action={handleSubmit} className="mt-8 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
           {error && (
             <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
               {error}

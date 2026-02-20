@@ -10,8 +10,6 @@ export default function SignUpSuccessPage() {
           <img
             src="/images/logo.png"
             alt="Elite Carwash Logo"
-            width={200}
-            height={67}
             style={{ width: 200, height: "auto" }}
           />
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">

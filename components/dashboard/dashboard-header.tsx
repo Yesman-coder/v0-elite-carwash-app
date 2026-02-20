@@ -2,7 +2,8 @@
 
 import type { User } from "@supabase/supabase-js"
 import type { Profile } from "@/lib/types"
-import { signOut } from "@/app/auth/actions"
+import { createClient } from "@/lib/supabase/client"
+import { useRouter } from "next/navigation"
 import { Menu, LogOut, User as UserIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -25,6 +26,15 @@ export function DashboardHeader({
   profile,
   onMenuClick,
 }: DashboardHeaderProps) {
+  const router = useRouter()
+  const supabase = createClient()
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push("/auth/login")
+    router.refresh()
+  }
+
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
       <button
@@ -70,7 +80,7 @@ export function DashboardHeader({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => signOut()}
+            onClick={handleSignOut}
             className="text-destructive focus:text-destructive"
           >
             <LogOut className="mr-2 h-4 w-4" />
