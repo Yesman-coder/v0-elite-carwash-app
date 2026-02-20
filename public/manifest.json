@@ -1,7 +1,7 @@
 {
-  "name": "Elite Carwash",
-  "short_name": "Elite Carwash",
-  "description": "Tu tarjeta de lealtad digital - Elite Carwash La Boheme",
+  "name": "Elite Carwash App",
+  "short_name": "Elite CW",
+  "description": "Sistema de gestion y programa de fidelidad - Elite Carwash",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0F172A",
