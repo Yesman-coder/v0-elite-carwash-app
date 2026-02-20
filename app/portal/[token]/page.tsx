@@ -16,34 +16,36 @@ export default async function PortalPage({
   const { token } = await params
   const supabase = await createClient()
 
-  // Use the RPC function to get customer data
-  const { data: customerData, error: customerError } = await supabase.rpc(
-    "get_portal_customer",
+  // Use the RPC functions that return jsonb
+  const { data: customerResult } = await supabase.rpc(
+    "get_customer_by_token",
     { p_token: token }
   )
 
-  if (customerError || !customerData || customerData.length === 0) {
+  if (
+    !customerResult ||
+    (typeof customerResult === "object" && !customerResult.success)
+  ) {
     notFound()
   }
 
-  const customer = customerData[0]
+  const customer = customerResult.customer
 
   // Get loyalty cards
-  const { data: cardsData } = await supabase.rpc("get_portal_cards", {
+  const { data: loyaltyResult } = await supabase.rpc("get_loyalty_by_token", {
     p_token: token,
   })
 
   // Get recent visits
-  const { data: visitsData } = await supabase.rpc("get_portal_visits", {
+  const { data: visitsResult } = await supabase.rpc("get_visits_by_token", {
     p_token: token,
-    p_limit: 20,
   })
 
   return (
     <PortalView
       customer={customer}
-      cards={cardsData || []}
-      visits={visitsData || []}
+      cards={loyaltyResult?.cards || []}
+      visits={visitsResult?.visits || []}
     />
   )
 }

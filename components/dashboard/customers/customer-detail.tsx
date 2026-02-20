@@ -1,12 +1,16 @@
 "use client"
 
-import type { Customer, Visit, Service } from "@/lib/types"
-import { useState } from "react"
+import type { Customer, Visit, Service, LoyaltyCard } from "@/lib/types"
 import { useRouter } from "next/navigation"
-import { createClient } from "@/lib/supabase/client"
-import { Button } from "@/components/ui/button"
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { LoyaltyCardVisual } from "@/components/dashboard/loyalty/loyalty-card-visual"
+import { AddStampDialog } from "@/components/dashboard/loyalty/add-stamp-dialog"
+import { RedeemDialog } from "@/components/dashboard/loyalty/redeem-dialog"
+import { toast } from "sonner"
+import Link from "next/link"
 import {
   ArrowLeft,
   Edit,
@@ -14,18 +18,20 @@ import {
   Mail,
   Car,
   CreditCard,
+  CalendarDays,
   Copy,
   ExternalLink,
+  User,
 } from "lucide-react"
-import Link from "next/link"
-import { toast } from "sonner"
-import { LoyaltyCardVisual } from "@/components/dashboard/loyalty/loyalty-card-visual"
-import { AddStampDialog } from "@/components/dashboard/loyalty/add-stamp-dialog"
-import { RedeemDialog } from "@/components/dashboard/loyalty/redeem-dialog"
 
 interface CustomerDetailProps {
-  customer: Customer
-  visits: Visit[]
+  customer: Customer & {
+    vehicle_type?: { name: string } | null
+    loyalty_cards?: (LoyaltyCard & {
+      stamps?: { id: string; stamp_number: number; created_at: string; service?: { name: string } | null }[]
+    })[]
+  }
+  visits: (Visit & { service?: { name: string } | null })[]
   services: Service[]
   stampsRequired: number
 }
@@ -37,7 +43,7 @@ export function CustomerDetail({
   stampsRequired,
 }: CustomerDetailProps) {
   const router = useRouter()
-  const [copying, setCopying] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const activeCard = customer.loyalty_cards?.find(
     (c) => c.status === "active"
@@ -45,27 +51,24 @@ export function CustomerDetail({
   const completedCard = customer.loyalty_cards?.find(
     (c) => c.status === "completed"
   )
+  const displayCard = completedCard || activeCard
 
   const portalUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/portal/${customer.portal_token}`
-      : ""
+      : `/portal/${customer.portal_token}`
 
-  async function copyPortalLink() {
-    setCopying(true)
-    try {
-      await navigator.clipboard.writeText(portalUrl)
-      toast.success("Enlace copiado al portapapeles")
-    } catch {
-      toast.error("No se pudo copiar el enlace")
-    }
-    setCopying(false)
+  function copyPortalLink() {
+    navigator.clipboard.writeText(portalUrl)
+    setCopied(true)
+    toast.success("Enlace copiado al portapapeles")
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="icon" asChild>
             <Link href="/dashboard/customers">
@@ -73,198 +76,250 @@ export function CustomerDetail({
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              {customer.full_name}
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                {customer.full_name}
+              </h1>
+              {!customer.is_active && (
+                <Badge variant="secondary">Inactivo</Badge>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">
               Cliente desde{" "}
-              {new Date(customer.created_at).toLocaleDateString("es-VE")}
+              {new Date(customer.created_at).toLocaleDateString("es-VE", {
+                month: "long",
+                year: "numeric",
+              })}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={copyPortalLink}>
-            <Copy className="mr-2 h-4 w-4" />
-            {copying ? "Copiado!" : "Copiar Portal"}
-          </Button>
-          <Button variant="outline" size="sm" asChild>
-            <a href={portalUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Ver Portal
-            </a>
-          </Button>
-          <Button size="sm" asChild>
-            <Link href={`/dashboard/customers/${customer.id}/edit`}>
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </Link>
-          </Button>
+        <Button variant="outline" asChild>
+          <Link href={`/dashboard/customers/${customer.id}/edit`}>
+            <Edit className="mr-2 h-4 w-4" />
+            Editar
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Left column - Info */}
+        <div className="flex flex-col gap-4">
+          {/* Contact Info */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <User className="h-4 w-4 text-primary" />
+                Informacion de Contacto
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-foreground">{customer.phone}</span>
+              </div>
+              {customer.email && (
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-foreground">{customer.email}</span>
+                </div>
+              )}
+              {customer.notes && (
+                <p className="mt-1 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                  {customer.notes}
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Vehicle Info */}
+          {(customer.vehicle_make || customer.vehicle_plate) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Car className="h-4 w-4 text-primary" />
+                  Vehiculo
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3">
+                  {customer.vehicle_type && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Tipo</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {(customer.vehicle_type as { name: string }).name}
+                      </p>
+                    </div>
+                  )}
+                  {customer.vehicle_make && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Marca</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {customer.vehicle_make}
+                      </p>
+                    </div>
+                  )}
+                  {customer.vehicle_model && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Modelo</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {customer.vehicle_model}
+                      </p>
+                    </div>
+                  )}
+                  {customer.vehicle_color && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Color</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {customer.vehicle_color}
+                      </p>
+                    </div>
+                  )}
+                  {customer.vehicle_plate && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Placa</p>
+                      <p className="text-sm font-bold text-foreground">
+                        {customer.vehicle_plate}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Portal Link */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <ExternalLink className="h-4 w-4 text-primary" />
+                Enlace del Portal
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-3 text-xs text-muted-foreground">
+                Comparte este enlace con el cliente para que pueda ver su tarjeta
+                de fidelidad desde su telefono.
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 truncate rounded-lg bg-muted/50 px-3 py-2 font-mono text-xs text-foreground">
+                  {portalUrl}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyPortalLink}
+                >
+                  <Copy className="mr-1.5 h-3.5 w-3.5" />
+                  {copied ? "Copiado" : "Copiar"}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right column - Loyalty & Visits */}
+        <div className="flex flex-col gap-4">
+          {/* Loyalty Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between text-base">
+                <span className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-primary" />
+                  Tarjeta de Fidelidad
+                </span>
+                <div className="flex items-center gap-2">
+                  {displayCard?.status === "completed" && (
+                    <RedeemDialog
+                      cardId={displayCard.id}
+                      customerName={customer.full_name}
+                      services={services}
+                      onRedeemed={() => router.refresh()}
+                    />
+                  )}
+                  {displayCard?.status === "active" && (
+                    <AddStampDialog
+                      cardId={displayCard.id}
+                      currentStamps={displayCard.current_stamps}
+                      stampsRequired={displayCard.stamps_required}
+                      services={services}
+                      onStampAdded={() => router.refresh()}
+                    />
+                  )}
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {displayCard ? (
+                <LoyaltyCardVisual
+                  currentStamps={displayCard.current_stamps}
+                  stampsRequired={displayCard.stamps_required}
+                  cardNumber={displayCard.card_number}
+                  customerName={customer.full_name}
+                  status={displayCard.status}
+                />
+              ) : (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No hay tarjeta activa
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Visits */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                Visitas Recientes
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {visits.length === 0 ? (
+                <p className="py-6 text-center text-sm text-muted-foreground">
+                  No hay visitas registradas
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {visits.slice(0, 8).map((visit) => (
+                    <div
+                      key={visit.id}
+                      className="flex items-center justify-between rounded-lg border border-border p-3"
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-foreground">
+                          {visit.service_name ||
+                            visit.service?.name ||
+                            "Servicio"}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(visit.created_at).toLocaleDateString(
+                            "es-VE",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          )}
+                        </span>
+                      </div>
+                      {visit.is_free_wash ? (
+                        <Badge className="bg-success text-success-foreground">
+                          GRATIS
+                        </Badge>
+                      ) : (
+                        <span className="text-sm font-semibold text-foreground">
+                          ${Number(visit.final_price).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Customer Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Informacion</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-foreground">{customer.phone}</span>
-            </div>
-            {customer.email && (
-              <div className="flex items-center gap-2 text-sm">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">{customer.email}</span>
-              </div>
-            )}
-            {(customer.vehicle_make || customer.vehicle_plate) && (
-              <div className="flex items-center gap-2 text-sm">
-                <Car className="h-4 w-4 text-muted-foreground" />
-                <span className="text-foreground">
-                  {[
-                    customer.vehicle_make,
-                    customer.vehicle_model,
-                    customer.vehicle_color,
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  {customer.vehicle_plate && ` - ${customer.vehicle_plate}`}
-                </span>
-              </div>
-            )}
-            {customer.vehicle_type && (
-              <div className="flex items-center gap-2 text-sm">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <Badge variant="secondary">{customer.vehicle_type.name}</Badge>
-              </div>
-            )}
-            {customer.notes && (
-              <p className="mt-2 text-xs text-muted-foreground">
-                {customer.notes}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Loyalty Card */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base">Tarjeta de Fidelidad</CardTitle>
-            <div className="flex items-center gap-2">
-              {completedCard && (
-                <RedeemDialog
-                  cardId={completedCard.id}
-                  customerName={customer.full_name}
-                  services={services}
-                  onRedeemed={() => router.refresh()}
-                />
-              )}
-              {activeCard && (
-                <AddStampDialog
-                  cardId={activeCard.id}
-                  currentStamps={activeCard.current_stamps}
-                  stampsRequired={activeCard.stamps_required}
-                  services={services}
-                  onStampAdded={() => router.refresh()}
-                />
-              )}
-            </div>
-          </CardHeader>
-          <CardContent>
-            {activeCard ? (
-              <LoyaltyCardVisual
-                currentStamps={activeCard.current_stamps}
-                stampsRequired={activeCard.stamps_required}
-                cardNumber={activeCard.card_number}
-                customerName={customer.full_name}
-                status={activeCard.status}
-              />
-            ) : completedCard ? (
-              <div>
-                <LoyaltyCardVisual
-                  currentStamps={completedCard.current_stamps}
-                  stampsRequired={completedCard.stamps_required}
-                  cardNumber={completedCard.card_number}
-                  customerName={customer.full_name}
-                  status={completedCard.status}
-                />
-                <p className="mt-2 text-center text-sm font-medium text-success">
-                  Tarjeta completa - Lavado gratis disponible
-                </p>
-              </div>
-            ) : (
-              <p className="py-4 text-center text-sm text-muted-foreground">
-                No hay tarjeta activa
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Recent Visits */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Visitas Recientes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {visits.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              Sin visitas registradas
-            </p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {visits.map((visit) => (
-                <div
-                  key={visit.id}
-                  className="flex items-center justify-between rounded-lg border border-border p-3"
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium text-foreground">
-                      {visit.service_name ||
-                        visit.service?.name ||
-                        "Servicio"}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(visit.created_at).toLocaleDateString("es-VE", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {visit.is_free_wash ? (
-                      <Badge className="bg-success text-success-foreground">GRATIS</Badge>
-                    ) : (
-                      <span className="text-sm font-medium text-foreground">
-                        ${Number(visit.final_price).toFixed(2)}
-                      </span>
-                    )}
-                    <Badge
-                      variant={
-                        visit.payment_status === "paid" || visit.payment_status === "free"
-                          ? "default"
-                          : "secondary"
-                      }
-                      className="text-xs"
-                    >
-                      {visit.payment_status === "paid"
-                        ? "Pagado"
-                        : visit.payment_status === "free"
-                          ? "Gratis"
-                          : "Pendiente"}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 }
