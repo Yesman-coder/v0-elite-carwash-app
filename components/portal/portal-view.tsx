@@ -43,8 +43,8 @@ export function PortalView({ customer, cards, visits }: PortalViewProps) {
             Hola, {customer.full_name.split(" ")[0]}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {customer.vehicle_make &&
-              `${customer.vehicle_make} ${customer.vehicle_model || ""}`}
+            {customer.vehicle_brand &&
+              `${customer.vehicle_brand} ${customer.vehicle_model || ""}`}
             {customer.last_km != null &&
               ` - ${customer.last_km.toLocaleString()} km`}
           </p>

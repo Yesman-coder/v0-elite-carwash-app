@@ -50,7 +50,7 @@ export default function LoginPage() {
         <div className="flex flex-col items-center gap-6">
           <img
             src="/images/logo.png"
-            alt="Elite Carwash Logo"
+            alt="AutoLimpio"
             style={{ width: 240, height: "auto" }}
           />
           <div className="text-center">

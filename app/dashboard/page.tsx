@@ -35,7 +35,7 @@ export default async function DashboardPage() {
       supabase
         .from("customers")
         .select(
-          "id, full_name, phone, vehicle_make, vehicle_model, last_km, last_oil_change_km"
+          "id, full_name, phone, vehicle_brand, vehicle_model, last_km, last_oil_change_km"
         )
         .eq("owner_id", user.id)
         .eq("is_active", true)
@@ -65,7 +65,7 @@ export default async function DashboardPage() {
       id: c.id,
       full_name: c.full_name,
       phone: c.phone,
-      vehicle_make: c.vehicle_make,
+      vehicle_brand: c.vehicle_brand,
       vehicle_model: c.vehicle_model,
       last_km: c.last_km as number,
       last_oil_change_km: c.last_oil_change_km as number,

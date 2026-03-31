@@ -4,8 +4,8 @@ import { PortalView } from "@/components/portal/portal-view"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Mi Tarjeta - Elite Carwash",
-  description: "Tu tarjeta de fidelidad Elite Carwash",
+  title: "Mi Tarjeta — AutoLimpio",
+  description: "Tu tarjeta de fidelidad y estado de suscripción",
 }
 
 export default async function PortalPage({

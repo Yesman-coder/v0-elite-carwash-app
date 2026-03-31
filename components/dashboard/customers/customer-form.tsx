@@ -46,7 +46,7 @@ export function CustomerForm({
     const phone = form.get("phone") as string
     const email = (form.get("email") as string) || null
     const vehicleTypeId = (form.get("vehicle_type_id") as string) || null
-    const vehicleMake = (form.get("vehicle_make") as string) || null
+    const vehicleMake = (form.get("vehicle_brand") as string) || null
     const vehicleModel = (form.get("vehicle_model") as string) || null
     const vehicleColor = (form.get("vehicle_color") as string) || null
     const lastKmRaw = form.get("last_km") as string
@@ -77,7 +77,7 @@ export function CustomerForm({
           phone,
           email,
           vehicle_type_id: vehicleTypeId === "none" ? null : vehicleTypeId,
-          vehicle_make: vehicleMake,
+          vehicle_brand: vehicleMake,
           vehicle_model: vehicleModel,
           vehicle_color: vehicleColor,
           last_km: lastKm,
@@ -103,7 +103,7 @@ export function CustomerForm({
           phone,
           email,
           vehicle_type_id: vehicleTypeId === "none" ? null : vehicleTypeId,
-          vehicle_make: vehicleMake,
+          vehicle_brand: vehicleMake,
           vehicle_model: vehicleModel,
           vehicle_color: vehicleColor,
           last_km: lastKm,
@@ -134,6 +134,13 @@ export function CustomerForm({
       } else {
         toast.success("Cliente y tarjeta de fidelidad creados")
       }
+
+      // Send welcome SMS (fire-and-forget — don't block navigation on failure)
+      fetch("/api/notifications/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId: newCustomer.id }),
+      }).catch(() => null)
 
       router.push(`/dashboard/customers/${newCustomer.id}`)
     }
@@ -215,11 +222,11 @@ export function CustomerForm({
           )}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="vehicle_make">Marca</Label>
+              <Label htmlFor="vehicle_brand">Marca</Label>
               <Input
-                id="vehicle_make"
-                name="vehicle_make"
-                defaultValue={customer?.vehicle_make || ""}
+                id="vehicle_brand"
+                name="vehicle_brand"
+                defaultValue={customer?.vehicle_brand || ""}
                 placeholder="Toyota, Ford..."
                 className="bg-secondary"
               />

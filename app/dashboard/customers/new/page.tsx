@@ -12,9 +12,8 @@ export default async function NewCustomerPage() {
   const { data: vehicleTypes } = await supabase
     .from("vehicle_types")
     .select("*")
-    .eq("owner_id", user.id)
     .eq("is_active", true)
-    .order("name")
+    .order("sort_order")
 
   const { data: settings } = await supabase
     .from("business_settings")

@@ -19,8 +19,8 @@ export default async function ServicesPage() {
   const { data: vehicleTypes } = await supabase
     .from("vehicle_types")
     .select("*")
-    .eq("owner_id", user.id)
-    .order("name")
+    .eq("is_active", true)
+    .order("sort_order")
 
   return (
     <div className="flex flex-col gap-6">

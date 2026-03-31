@@ -53,12 +53,29 @@ export default async function CustomerDetailPage({
     .eq("owner_id", user.id)
     .single()
 
+  const { data: plans } = await supabase
+    .from("subscription_plans")
+    .select("*")
+    .eq("owner_id", user.id)
+    .eq("is_active", true)
+    .order("price_cents")
+
+  const { data: activeSubscription } = await supabase
+    .from("subscriptions")
+    .select("*, plan:subscription_plans(*)")
+    .eq("customer_id", id)
+    .eq("owner_id", user.id)
+    .eq("is_active", true)
+    .single()
+
   return (
     <CustomerDetail
       customer={customer}
       visits={visits || []}
       services={services || []}
       stampsRequired={settings?.stamps_required || 5}
+      subscriptionPlans={plans || []}
+      activeSubscription={activeSubscription || null}
     />
   )
 }

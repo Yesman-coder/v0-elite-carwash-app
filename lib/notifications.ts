@@ -1,10 +1,18 @@
 import { createClient } from "@/lib/supabase/server"
+import twilio from "twilio"
 
 /**
- * SMS Notification Stub
- * This is a placeholder for the actual SMS provider integration.
- * Replace with a real provider (Twilio, Venezuelan bulk SMS API, etc.)
+ * Twilio SMS integration.
+ * Requires env vars: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER
+ * Falls back to console logging when env vars are not set (development).
  */
+
+function getTwilioClient() {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID
+  const authToken = process.env.TWILIO_AUTH_TOKEN
+  if (!accountSid || !authToken) return null
+  return twilio(accountSid, authToken)
+}
 
 interface SendNotificationParams {
   ownerId: string
@@ -18,34 +26,56 @@ interface SendNotificationParams {
 
 export async function sendNotification(params: SendNotificationParams) {
   const supabase = await createClient()
+  const twilioClient = getTwilioClient()
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER
 
-  // STUB: Log the notification instead of actually sending
-  console.log(`[SMS STUB] To: ${params.recipient} | Type: ${params.type}`)
-  console.log(`[SMS STUB] Message: ${params.message}`)
+  let status: "sent" | "failed" | "stubbed" = "stubbed"
+  let errorMessage: string | null = null
 
-  const { error } = await supabase.from("notification_log").insert({
-    owner_id: params.ownerId,
-    customer_id: params.customerId || null,
-    type: params.type,
-    channel: params.channel || "sms",
-    recipient: params.recipient,
-    message: params.message,
-    status: "stubbed",
-    metadata: params.metadata || {},
-  })
-
-  if (error) {
-    console.error("[Notification Error]", error)
+  if (twilioClient && fromNumber) {
+    try {
+      await twilioClient.messages.create({
+        body: params.message,
+        from: fromNumber,
+        to: params.recipient,
+      })
+      status = "sent"
+    } catch (err) {
+      const error = err as Error
+      console.error("[Twilio Error]", error.message)
+      status = "failed"
+      errorMessage = error.message
+    }
+  } else {
+    // Development fallback — no Twilio credentials configured
+    console.log(`[SMS DEV] To: ${params.recipient} | Type: ${params.type}`)
+    console.log(`[SMS DEV] Message: ${params.message}`)
+    status = "stubbed"
   }
 
-  return { success: !error, status: "stubbed" as const }
+  await supabase.from("notification_log").insert({
+    owner_id: params.ownerId,
+    customer_id: params.customerId ?? null,
+    type: params.type,
+    channel: params.channel ?? "sms",
+    recipient: params.recipient,
+    message: params.message,
+    status,
+    error_message: errorMessage,
+    metadata: params.metadata ?? {},
+  })
+
+  return { success: status === "sent" || status === "stubbed", status }
 }
 
 export function buildWelcomeMessage(
   template: string,
-  customerName: string
+  customerName: string,
+  portalUrl: string
 ): string {
-  return template.replace("{name}", customerName)
+  return template
+    .replace("{name}", customerName)
+    .replace("{url}", portalUrl)
 }
 
 export function buildRewardMessage(
@@ -53,4 +83,16 @@ export function buildRewardMessage(
   customerName: string
 ): string {
   return template.replace("{name}", customerName)
+}
+
+export function buildMaintenanceMessage(
+  customerName: string,
+  vehicleBrand: string,
+  vehicleModel: string,
+  type: "oil_change" | "tire_rotation"
+): string {
+  if (type === "oil_change") {
+    return `Hola ${customerName}, tu ${vehicleBrand} ${vehicleModel} podría necesitar un cambio de aceite pronto. ¡Pasa por AutoLimpio y lo revisamos!`
+  }
+  return `Hola ${customerName}, tu ${vehicleBrand} ${vehicleModel} podría necesitar una rotación de cauchos. ¡Pasa por AutoLimpio y te ayudamos!`
 }

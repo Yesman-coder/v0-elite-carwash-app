@@ -6,14 +6,14 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Elite Carwash App",
+  title: "AutoLimpio",
   description:
-    "Sistema de gestion para Elite Carwash - Programa de fidelidad y gestion de clientes",
+    "Sistema de gestión para tu carwash — Programa de fidelidad, suscripciones y gestión de clientes",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Elite Carwash",
+    title: "AutoLimpio",
   },
 }
 

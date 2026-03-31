@@ -9,7 +9,7 @@ export default function SignUpSuccessPage() {
         <div className="flex flex-col items-center gap-6">
           <img
             src="/images/logo.png"
-            alt="Elite Carwash Logo"
+            alt="AutoLimpio Logo"
             style={{ width: 200, height: "auto" }}
           />
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -21,7 +21,7 @@ export default function SignUpSuccessPage() {
             </h1>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Te hemos enviado un enlace de confirmacion. Haz clic en el enlace
-              para activar tu cuenta y comenzar a usar Elite Carwash App.
+              para activar tu cuenta y comenzar a usar AutoLimpio App.
             </p>
           </div>
         </div>

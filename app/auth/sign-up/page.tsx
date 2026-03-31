@@ -44,7 +44,7 @@ export default function SignUpPage() {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           full_name: fullName,
-          business_name: businessName || "Elite Carwash",
+          business_name: businessName || "AutoLimpio",
           role: "owner",
         },
       },
@@ -71,7 +71,7 @@ export default function SignUpPage() {
         <div className="flex flex-col items-center gap-6">
           <img
             src="/images/logo.png"
-            alt="Elite Carwash Logo"
+            alt="AutoLimpio Logo"
             style={{ width: 240, height: "auto" }}
           />
           <div className="text-center">
@@ -79,7 +79,7 @@ export default function SignUpPage() {
               Crear Cuenta
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Registra tu negocio en Elite Carwash
+              Registra tu negocio en AutoLimpio
             </p>
           </div>
         </div>
@@ -109,8 +109,8 @@ export default function SignUpPage() {
               id="business_name"
               name="business_name"
               type="text"
-              placeholder="Elite Carwash"
-              defaultValue="Elite Carwash"
+              placeholder="AutoLimpio"
+              defaultValue="AutoLimpio"
               className="bg-secondary"
             />
           </div>

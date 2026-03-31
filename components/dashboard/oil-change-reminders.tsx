@@ -10,7 +10,7 @@ interface OilChangeReminder {
   id: string
   full_name: string
   phone: string
-  vehicle_make: string | null
+  vehicle_brand: string | null
   vehicle_model: string | null
   last_km: number
   last_oil_change_km: number
@@ -56,7 +56,7 @@ export function OilChangeReminders({ reminders }: OilChangeRemindersProps) {
                       {r.full_name}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {[r.vehicle_make, r.vehicle_model]
+                      {[r.vehicle_brand, r.vehicle_model]
                         .filter(Boolean)
                         .join(" ") || "Vehiculo"}{" "}
                       - {r.last_km.toLocaleString()} km actual

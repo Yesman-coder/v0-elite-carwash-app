@@ -6,7 +6,7 @@ export default function PortalNotFound() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-background px-4 text-center">
       <img
         src="/images/logo.png"
-        alt="Elite Carwash"
+        alt="AutoLimpio"
         className="mb-6"
         style={{ width: 180, height: "auto" }}
       />

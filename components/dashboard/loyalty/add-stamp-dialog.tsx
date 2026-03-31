@@ -28,6 +28,7 @@ import { Stamp } from "lucide-react"
 
 interface AddStampDialogProps {
   cardId: string
+  customerId: string
   currentStamps: number
   stampsRequired: number
   services: Service[]
@@ -36,6 +37,7 @@ interface AddStampDialogProps {
 
 export function AddStampDialog({
   cardId,
+  customerId,
   currentStamps,
   stampsRequired,
   services,
@@ -85,6 +87,12 @@ export function AddStampDialog({
       toast.success(
         `Sello ${result.stamp_number}/${result.stamps_required} agregado - Tarjeta COMPLETA! Lavado gratis disponible.`
       )
+      // Send reward SMS (fire-and-forget)
+      fetch("/api/notifications/reward", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customerId }),
+      }).catch(() => null)
     } else {
       toast.success(
         `Sello ${result.stamp_number}/${result.stamps_required} agregado`

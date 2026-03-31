@@ -19,7 +19,7 @@ export function CustomerList({ customers }: CustomerListProps) {
     (c) =>
       c.full_name.toLowerCase().includes(search.toLowerCase()) ||
       c.phone.includes(search) ||
-      c.vehicle_make?.toLowerCase().includes(search.toLowerCase())
+      c.vehicle_brand?.toLowerCase().includes(search.toLowerCase())
   )
 
   const getActiveCard = (customer: Customer) => {
@@ -84,12 +84,12 @@ export function CustomerList({ customers }: CustomerListProps) {
                       <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground" />
                     </div>
 
-                    {(customer.vehicle_make || customer.last_km) && (
+                    {(customer.vehicle_brand || customer.last_km) && (
                       <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                         <Car className="h-3.5 w-3.5" />
                         <span>
                           {[
-                            customer.vehicle_make,
+                            customer.vehicle_brand,
                             customer.vehicle_model,
                             customer.vehicle_color,
                           ]

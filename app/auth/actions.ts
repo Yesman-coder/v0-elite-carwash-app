@@ -50,7 +50,7 @@ export async function signUp(formData: FormData) {
         `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard`,
       data: {
         full_name: fullName,
-        business_name: businessName || "Elite Carwash",
+        business_name: businessName || "AutoLimpio",
         role: "owner",
       },
     },

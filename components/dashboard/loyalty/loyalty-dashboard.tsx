@@ -70,6 +70,7 @@ export function LoyaltyDashboard({ cards, services }: LoyaltyDashboardProps) {
               {card.status === "active" && (
                 <AddStampDialog
                   cardId={card.id}
+                  customerId={card.customer_id}
                   currentStamps={card.current_stamps}
                   stampsRequired={card.stamps_required}
                   services={services}
